@@ -1,1085 +1,428 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CSE-B Class Dashboard — Notion-style Mock</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<style>
-  /* ====== Fonts & root vars ====== */
-  @font-face {
-    font-family: 'InterVar';
-    src: local('Inter'), local('Inter var');
-  }
-  :root{
-    --bg: linear-gradient(180deg,#0f172a 0%, #0b1020 60%);
-    --card: rgba(255,255,255,0.06);
-    --muted: rgba(255,255,255,0.6);
-    --accent: linear-gradient(90deg,#7c5cff,#35d0ba);
-    --glass: rgba(255,255,255,0.04);
-    --glass-2: rgba(255,255,255,0.03);
-    --glass-border: rgba(255,255,255,0.06);
-    --success: #4ade80;
-    --danger: #fb7185;
-    --glass-radius: 14px;
-    --ui-gap: 18px;
-    --shadow: 0 6px 20px rgba(2,6,23,0.7);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    padding:24px;
-    font-family: InterVar, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: var(--bg);
-    color: #e6eef8;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    line-height:1.35;
-  }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CSE_D HQ — Notion-style Student Workspace (Demo)</title>
+  <style>
+    :root{
+      --bg:#ffffff; --panel:#fbfdff; --muted:#6b7280; --accent:#0ea5a4; --accent2:#06b6d4; --text:#0f172a; --glass:rgba(255,255,255,0.6);
+      --radius:12px;
+    }
+    body.dark{
+      --bg:#071227; --panel:#071227; --muted:#a7b4c3; --accent:#34d399; --accent2:#06b6d4; --text:#e6eef6;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:var(--bg); color:var(--text);
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    }
 
-  /* ====== Layout ====== */
-  .wrap{
-    max-width:1300px;
-    margin:0 auto;
-    display:grid;
-    grid-template-columns: 260px 1fr;
-    gap:var(--ui-gap);
-    align-items:start;
-  }
-  header{
-    grid-column:1 / -1;
-    display:flex;
-    gap:12px;
-    align-items:center;
-    margin-bottom:6px;
-  }
-  .brand{
-    display:flex;
-    gap:12px;
-    align-items:center;
-  }
-  .logo{
-    width:56px;height:56px;border-radius:12px;
-    background:var(--accent);
-    display:grid;place-items:center;
-    font-weight:700;font-size:18px;color:#081224;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-    transform:rotate(-6deg);
-  }
-  h1{font-size:20px;margin:0}
-  p.subtitle{margin:0;color:var(--muted);font-size:13px}
+    /* layout */
+    .app{display:flex;min-height:100vh}
+    .leftbar{
+      width:260px; padding:20px; border-right:1px solid rgba(15,23,42,0.06);
+      background:linear-gradient(180deg,var(--panel),rgba(255,255,255,0.02));
+      transition:transform .22s ease, box-shadow .22s;
+    }
+    .leftbar.closed{transform:translateX(-112%)}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:0 8px 30px rgba(6,182,212,0.08)}
+    .title{font-weight:700}
+    .muted{color:var(--muted);font-size:13px}
+    .pages{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+    .page-btn{
+      display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:15px;text-align:left;transition:background .12s,color .12s;
+    }
+    .page-btn.active{background:rgba(14,165,164,0.08);color:var(--text);font-weight:600}
+    .left-footer{position:fixed;bottom:18px;left:20px;right:20px;display:flex;gap:8px}
+    .ghost{background:transparent;border:1px solid rgba(15,23,42,0.06);padding:8px;border-radius:10px}
+    .workspace{flex:1;padding:28px;transition:margin-left .2s}
+    .ws-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px}
+    .ws-breadcrumbs{font-size:14px;color:var(--muted)}
+    .ws-actions{display:flex;gap:10px;align-items:center}
+    .btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;background:transparent}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:white;box-shadow:0 8px 30px rgba(6,182,212,0.08)}
+    .btn.small{padding:6px 10px;font-size:13px}
+    .btn.tiny{padding:4px 6px;font-size:12px}
+    #pageContent{min-height:60vh;padding:22px;border-radius:14px;background:linear-gradient(180deg,rgba(14,165,164,0.02),transparent);outline:none;transition:box-shadow .12s}
+    #pageContent:focus{box-shadow:0 10px 40px rgba(6,182,212,0.05)}
+    /* Blocks */
+    .block{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px;background:var(--bg);border:1px solid rgba(2,6,23,0.04);transition:box-shadow .12s,transform .12s}
+    .block + .block{margin-top:10px}
+    .block:hover{box-shadow:0 12px 30px rgba(2,6,23,0.06);transform:translateY(-6px)}
+    .left-handle{color:var(--muted);cursor:grab;padding-top:6px;user-select:none}
+    .content{flex:1;min-height:36px;outline:none;white-space:pre-wrap}
+    .content:empty:before{content:"Type '/' for commands — e.g. /h1, /todo, /code";color:var(--muted);font-size:13px}
+    .meta{display:flex;gap:8px;margin-left:8px}
+    .icon{opacity:.9}
+    .block.dragging{opacity:.6;transform:scale(.98)}
+    .block.placeholder{border:2px dashed rgba(6,182,212,0.18);background:transparent}
 
-  /* ====== Sidebar ====== */
-  .sidebar{
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:var(--glass-radius);
-    padding:18px;
-    border:1px solid var(--glass-border);
-    box-shadow:var(--shadow);
-    min-height:550px;
-  }
-  .avatar-row{display:flex;gap:10px;align-items:center;margin-bottom:12px}
-  .avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#ffd6a5,#fdffb6);display:grid;place-items:center;color:#081224;font-weight:700}
-  .sidebar .btn{
-    display:block;width:100%;padding:10px;border-radius:10px;border:0;background:transparent;color:inherit;text-align:left;font-weight:600;
-    cursor:pointer; margin-bottom:8px;
-    transition:transform .18s ease, background .18s;
-  }
-  .sidebar .btn:hover{transform:translateX(6px)}
-  .small{font-size:12px;color:var(--muted)}
+    /* footer */
+    .ws-foot{margin-top:18px;color:var(--muted);font-size:13px}
 
-  /* ====== Main content ====== */
-  main{
-    display:grid;
-    grid-template-columns: 1fr 420px;
-    gap:var(--ui-gap);
-  }
-  .panel{
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:14px;padding:18px;border:1px solid var(--glass-border);box-shadow:var(--shadow);
-    overflow:hidden;
-  }
-  .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-  .section-title h3{margin:0;font-size:16px}
-  .pill{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid rgba(255,255,255,0.03)}
+    /* mobile */
+    @media(max-width:920px){
+      .leftbar{position:fixed;left:0;top:0;bottom:0;z-index:60;transform:translateX(-112%);box-shadow:0 30px 80px rgba(2,6,23,0.12)}
+      .leftbar.open{transform:none}
+      .workspace{padding:18px}
+    }
 
-  /* ====== Grid of widgets ====== */
-  .widgets{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap:16px;
-  }
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .card{
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
-    padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);
-    transition:transform .18s ease, box-shadow .18s;
-  }
-  .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.6);}
-  .list{display:flex;flex-direction:column;gap:10px}
+    /* small polish */
+    .brand .subtitle{font-size:13px;color:var(--muted)}
+    .page-actions{display:flex;gap:8px;align-items:center}
+    .btn.ghost{border:1px solid rgba(15,23,42,0.06);padding:8px;border-radius:10px}
+    .hidden{display:none}
+    /* subtle animation for new block */
+    .block.enter{animation:popIn .22s ease}
+    @keyframes popIn{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
 
-  /* ====== Announcements ====== */
-  .ann-item{display:flex;justify-content:space-between;gap:8px;padding:10px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.02)}
-  .ann-item .meta{color:var(--muted);font-size:12px}
-  .ann-actions{display:flex;gap:8px;align-items:center}
+    /* export modal */
+    .modal{
+      position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--panel);padding:18px;border-radius:12px;box-shadow:0 30px 80px rgba(2,6,23,0.12);z-index:200;width:min(720px,92vw);
+    }
+    .overlay{position:fixed;inset:0;background:rgba(2,6,23,0.28);z-index:190}
 
-  /* ====== Assignments table ====== */
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{padding:8px 6px;text-align:left}
-  thead th{font-size:12px;color:var(--muted);font-weight:700;border-bottom:1px dashed rgba(255,255,255,0.03)}
-  tbody tr{border-bottom:1px dashed rgba(255,255,255,0.02)}
-  .status{padding:6px 8px;border-radius:999px;font-weight:700;font-size:12px}
-  .status.pending{background:rgba(255,190,86,0.12);color:#ffb86b}
-  .status.done{background:rgba(74,222,128,0.08);color:var(--success)}
-  .status.missed{background:rgba(251,113,133,0.06);color:var(--danger)}
-
-  /* ====== Gallery notes ====== */
-  .note-card{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);display:flex;flex-direction:column;gap:10px}
-  .note-title{font-weight:700}
-  .note-footer{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted)}
-
-  /* ====== Calendar ====== */
-  .calendar{
-    display:flex;flex-direction:column;gap:12px;
-  }
-  .cal-head{display:flex;justify-content:space-between;align-items:center}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-  .cal-day{
-    min-height:86px;padding:8px;border-radius:8px;background:var(--card);position:relative;
-    overflow:hidden;border:1px solid rgba(255,255,255,0.02);
-  }
-  .cal-day .date{position:absolute;right:8px;top:8px;font-size:12px;color:var(--muted)}
-  .cal-day .events{margin-top:22px;display:flex;flex-direction:column;gap:6px}
-  .cal-event{background:linear-gradient(90deg,#ffffff08,#ffffff04);padding:6px 8px;border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .cal-day.today{box-shadow:inset 0 0 0 2px rgba(90,200,255,0.06);border:1px solid rgba(100,180,255,0.12)}
-  .cal-controls{display:flex;gap:8px;align-items:center}
-
-  /* ====== Modals & forms ====== */
-  .modal{
-    position:fixed;inset:0;background:linear-gradient(180deg,rgba(4,6,12,0.6), rgba(4,6,12,0.75));
-    display:none;align-items:center;justify-content:center;padding:24px;z-index:1200;
-  }
-  .modal.show{display:flex}
-  .modal-card{width:720px;max-width:95%;background:linear-gradient(180deg,#061023,#071227);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03)}
-  label{display:block;margin-bottom:6px;font-size:13px}
-  input[type="text"],input[type="date"],textarea,select{
-    width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;
-  }
-  .row{display:flex;gap:12px}
-  .row .col{flex:1}
-  .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
-  .btn-primary{background:linear-gradient(90deg,#7c5cff,#35d0ba);border:0;color:#081224;padding:10px 12px;border-radius:10px;font-weight:800;cursor:pointer}
-  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--muted)}
-
-  /* ====== Attendance list ====== */
-  .att-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
-  .students{max-height:260px;overflow:auto;padding-right:6px;display:grid;gap:6px}
-  .student{display:flex;align-items:center;gap:10px}
-
-  /* ====== small-screen ====== */
-  @media (max-width: 980px){
-    .wrap{grid-template-columns:1fr; padding:12px}
-    main{grid-template-columns: 1fr}
-    .sidebar{order:2;min-height:auto}
-    .calendar{order:1}
-  }
-  /* ====== micro animations: confetti ====== */
-  .confetti {
-    pointer-events: none;
-    position:fixed;left:0;top:0;width:100%;height:0;z-index:9999;
-  }
-  /* neat focus ring for accessibility */
-  input:focus, textarea:focus, button:focus { outline: 3px solid rgba(125, 90, 255, 0.12); outline-offset: 2px; }
-</style>
+    /* small utilities */
+    .muted{color:var(--muted)}
+    input[type="text"], input[type="search"]{padding:8px 10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);background:transparent}
+    .tiny-ico{font-size:14px}
+  </style>
 </head>
-<body>
-
-<div class="wrap" role="application">
-  <header>
-    <div class="brand">
-      <div class="logo">CSE-B</div>
-      <div>
-        <h1>CSE-B Class Dashboard (2025 Batch)</h1>
-        <p class="subtitle">Your class HQ — Announcements, Assignments, Calendar, Attendance & Notes</p>
-      </div>
-    </div>
-
-    <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
-      <button id="openAddAnnouncement" class="btn-primary" title="Add Announcement">＋ Add Announcement</button>
-      <button id="openAddAssignment" class="btn-ghost" title="Add Assignment">＋ Assignment</button>
-    </div>
-  </header>
-
-  <!-- Sidebar -->
-  <aside class="sidebar" aria-label="Sidebar navigation">
-    <div class="avatar-row">
-      <div class="avatar">CR</div>
-      <div>
-        <div style="font-weight:700">Class Representative</div>
-        <div class="small">72 members — CSE-B</div>
-      </div>
-    </div>
-
-    <div style="margin-top:12px">
-      <button class="btn" data-section="announcements">🗓️ Announcements & Deadlines</button>
-      <button class="btn" data-section="assignments">🧾 Assignments & Submissions</button>
-      <button class="btn" data-section="notes">📚 Notes & Study Material</button>
-      <button class="btn" data-section="events">🧠 Upcoming Events</button>
-      <button class="btn" data-section="attendance">📋 Attendance / Task Tracker</button>
-    </div>
-
-    <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:12px 0">
-
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button id="exportAttendance" class="btn-ghost">Export Attendance CSV</button>
-      <button id="exportAssignments" class="btn-ghost">Export Assignments CSV</button>
-      <button id="clearAll" class="btn-ghost" title="Clear local data">Reset (local)</button>
-    </div>
-
-    <p style="margin-top:18px;font-size:12px;color:var(--muted)">Tip: pin this file to your WhatsApp group, or share the file with classmates. Data is stored locally; export before switching devices.</p>
-  </aside>
-
-  <!-- Main -->
-  <main>
-    <section class="panel">
-      <div class="section-title">
-        <h3>🗓️ Announcements & Deadlines</h3>
-        <div class="pill" id="annCount">—</div>
-      </div>
-      <div class="widgets" id="announcementsList">
-        <!-- announcements inserted by JS -->
-      </div>
-    </section>
-
-    <!-- Right column -->
-    <aside class="panel">
-      <div class="section-title">
-        <h3>🧭 Quick Calendar</h3>
-        <div class="cal-controls">
-          <button id="miniPrev" class="btn-ghost">◀</button>
-          <button id="miniNext" class="btn-ghost">▶</button>
-          <div class="pill" id="miniTitle">Month</div>
+<body class="light">
+  <div class="app" id="app">
+    <aside class="leftbar" id="leftbar" aria-label="Pages">
+      <div class="brand">
+        <div class="logo" aria-hidden>CD</div>
+        <div>
+          <div class="title">CSE_D HQ</div>
+          <div class="subtitle muted">Notion-style Class Workspace</div>
         </div>
       </div>
 
-      <div class="calendar" id="miniCalendar">
-        <!-- calendar from JS -->
+      <div class="pages" id="pagesList" aria-label="Page list">
+        <!-- page buttons inserted here -->
       </div>
 
-      <div style="margin-top:14px" class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-weight:700">Quick Actions</div>
-            <div class="small">Add items fast</div>
-          </div>
-          <div>
-            <button id="openAddEvent" class="btn-primary" style="padding:8px 10px">＋ Event</button>
-          </div>
-        </div>
-
-        <div style="margin-top:12px">
-          <div class="small">Upcoming (next 3)</div>
-          <div id="upcomingMini" style="margin-top:8px"></div>
-        </div>
+      <div class="left-footer">
+        <button id="newPage" class="ghost" title="Create new page">+ Page</button>
+        <button id="themeToggle" class="ghost" title="Toggle theme">Dark</button>
       </div>
     </aside>
 
-    <!-- Lower full width panel -->
-    <section style="grid-column:1 / -1; display:grid; grid-template-columns:1fr 420px; gap:18px; margin-top:12px">
-      <!-- Left column: assignments, notes -->
-      <div class="panel">
-        <div class="section-title">
-          <h3>🧾 Assignments & Submissions</h3>
-          <div class="pill" id="assignCount">—</div>
+    <main class="workspace" role="main">
+      <header class="ws-top">
+        <div class="ws-breadcrumbs">CSE_D HQ / <span id="pageTitle">Home</span></div>
+        <div class="ws-actions">
+          <button id="shareBtn" class="btn small">Share</button>
+          <button id="addBlock" class="btn primary">+ Block</button>
+          <button id="toggleSidebar" class="btn ghost" title="Toggle sidebar">☰</button>
         </div>
+      </header>
 
-        <div class="card" style="margin-bottom:12px">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-weight:700">Add Assignment</div>
-              <div class="small">Title, subject, deadline & link</div>
-            </div>
-            <div>
-              <button id="openAddAssignment2" class="btn-ghost">＋ Add</button>
-            </div>
-          </div>
-        </div>
+      <section id="pageContent" tabindex="0" aria-label="Page content">
+        <!-- blocks will be injected here -->
+      </section>
 
-        <div class="card">
-          <table aria-label="Assignments table">
-            <thead>
-              <tr><th>Task</th><th>Subject</th><th>Deadline</th><th>Link</th><th>Status</th><th></th></tr>
-            </thead>
-            <tbody id="assignmentsTable">
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Right column: Notes & Events -->
-      <div class="panel">
-        <div class="section-title">
-          <h3>📚 Notes & Study Material</h3>
-          <div><button id="openAddNote" class="btn-ghost">＋ Add Note</button></div>
-        </div>
-
-        <div class="card" id="notesGrid" style="display:grid;grid-template-columns:1fr;gap:10px">
-          <!-- notes inserted by JS -->
-        </div>
-
-        <div style="margin-top:12px" class="section-title">
-          <h3>🧠 Upcoming Events</h3>
-          <div class="small" id="eventCount">—</div>
-        </div>
-        <div id="eventsList" class="list">
-          <!-- events inserted by JS -->
-        </div>
-      </div>
-
-      <!-- Attendance / Task Tracker -->
-      <div class="panel" style="grid-column:2">
-        <div class="section-title">
-          <h3>📋 Attendance / Task Tracker</h3>
-          <div class="small" id="attendanceSummary">—</div>
-        </div>
-
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div>
-              <div style="font-weight:700">Quick Attendance</div>
-              <div class="small">Mark present for today (click Save)</div>
-            </div>
-            <div>
-              <button id="markAllPresent" class="btn-primary" style="padding:8px 10px">Mark All</button>
-            </div>
-          </div>
-
-          <div class="students" id="studentsList" aria-live="polite">
-            <!-- Students list inserted by JS -->
-          </div>
-
-          <div class="actions" style="margin-top:10px">
-            <button id="saveAttendance" class="btn-primary">Save Attendance</button>
-            <button id="clearAttendance" class="btn-ghost">Clear</button>
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-</div>
-
-<!-- Modal (Add forms) -->
-<div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="modal-card" role="document">
-    <div id="modalContent">
-      <!-- dynamic content -->
-    </div>
+      <footer class="ws-foot muted">Demo • Notion-style blocks • Class: <strong>CSE_D HQ</strong></footer>
+    </main>
   </div>
-</div>
 
-<!-- Confetti container -->
-<canvas class="confetti" id="confetti"></canvas>
+  <!-- template -->
+  <template id="blockTemplate">
+    <article class="block" draggable="true">
+      <div class="left-handle" aria-hidden>⋮⋮</div>
+      <div class="content" contenteditable="true" role="textbox" aria-multiline="true">New block — double-click to edit</div>
+      <div class="meta">
+        <button class="btn tiny action save" title="Save">Save</button>
+        <button class="btn tiny action del" title="Delete">Delete</button>
+      </div>
+    </article>
+  </template>
 
-<script>
-/* =========================
-   Dashboard JS — self-contained
-   - Data stored in localStorage under key "cseb_dashboard_v1"
-   - All sections: announcements, assignments, notes, events, students/attendance
-   ========================= */
-(function(){
-  const DEFAULT_STUDENTS = (() => {
-    // generate sample 30 names and allow adding more — you have 72 in your class, so we list a shorter sample; user can edit
-    const sample = ["Harini Sudireddy","Rohan Kumar","Aisha Patel","Vikram Rao","Neha Sharma","Aman Joshi","Priya Nair","Karthik M","Sana Khan","Ankit Verma","Ritu Singh","Manish Yadav","Sneha R","Aditya P","Smita R","Sachin T","Divya L","Rakesh N","Ishita S","Kavya M","Arjun B","Hema D","Nitin C","Pooja R","Sowmya K","Tarun G","Meera V","Rohit S","Anu R","Vishwa P"];
-    return sample;
-  })();
+  <script>
+    (function(){
+      // elements
+      const leftbar = document.getElementById('leftbar');
+      const pagesList = document.getElementById('pagesList');
+      const toggleSidebar = document.getElementById('toggleSidebar');
+      const themeToggle = document.getElementById('themeToggle');
+      const pageTitle = document.getElementById('pageTitle');
+      const pageContent = document.getElementById('pageContent');
+      const addBlockBtn = document.getElementById('addBlock');
+      const newPageBtn = document.getElementById('newPage');
+      const shareBtn = document.getElementById('shareBtn');
 
-  // storage and state
-  const SKEY = 'cseb_dashboard_v1';
-  const state = loadState();
+      // state in localStorage key
+      const KEY = 'cse_notion_state_v1';
 
-  // element refs
-  const annList = document.getElementById('announcementsList');
-  const annCount = document.getElementById('annCount');
-  const assignmentsTable = document.getElementById('assignmentsTable');
-  const assignCount = document.getElementById('assignCount');
-  const notesGrid = document.getElementById('notesGrid');
-  const eventsList = document.getElementById('eventsList');
-  const eventCount = document.getElementById('eventCount');
-  const miniCalendar = document.getElementById('miniCalendar');
-  const miniTitle = document.getElementById('miniTitle');
-  const upcomingMini = document.getElementById('upcomingMini');
-  const studentsList = document.getElementById('studentsList');
-  const attendanceSummary = document.getElementById('attendanceSummary');
-  const modal = document.getElementById('modal');
-  const modalContent = document.getElementById('modalContent');
-  const confettiCanvas = document.getElementById('confetti');
-
-  // init
-  renderAll();
-  buildSidebarActions();
-  setupButtons();
-  initMiniCalendar();
-
-  // ---------- storage ----------
-  function loadState(){
-    const raw = localStorage.getItem(SKEY);
-    if(!raw) {
-      const init = {
-        announcements: [
-          {id: idGen(), text: "Welcome to CSE-B Dashboard! Pin this link.", date: todayISO()},
-          {id: idGen(), text: "ML Lab submission due 2025-10-12 23:59", date: "2025-10-12"}
-        ],
-        assignments: [
-          {id: idGen(), title:"DBMS Lab Assignment", subject:"DBMS", deadline:"2025-10-12", link:"", status:"pending"}
-        ],
-        notes: [
-          {id:idGen(), title:"Unit 3 - Scheduling Algorithms", subject:"OS", link:"", uploadedBy:"Harini", desc:"Short summary + slides"}
-        ],
-        events: [
-          {id:idGen(), title:"Tech Fest Registration", date:"2025-10-15", desc:"Register via the Google form", time:""}
-        ],
-        students: DEFAULT_STUDENTS.map((n,i)=>({id:idGen(), name:n, present:false})),
-        attendanceRecords: {} // keyed by date -> array of student ids
-      };
-      localStorage.setItem(SKEY, JSON.stringify(init));
-      return init;
-    }
-    try{
-      return JSON.parse(raw);
-    }catch(e){
-      localStorage.removeItem(SKEY);
-      return loadState();
-    }
-  }
-  function saveState(){
-    localStorage.setItem(SKEY, JSON.stringify(state));
-  }
-  function resetState(){
-    localStorage.removeItem(SKEY);
-    location.reload();
-  }
-
-  // ---------- rendering ----------
-  function renderAll(){
-    renderAnnouncements();
-    renderAssignments();
-    renderNotes();
-    renderEvents();
-    renderStudents();
-    renderUpcomingMini();
-    renderSummary();
-  }
-
-  function renderAnnouncements(){
-    annList.innerHTML = '';
-    state.announcements.slice().reverse().forEach(a=>{
-      const d = document.createElement('div');
-      d.className = 'ann-item';
-      d.innerHTML = `
-        <div>
-          <div style="font-weight:700">${escapeHtml(a.text)}</div>
-          <div class="meta">${a.date ? escapeHtml(a.date) : ''}</div>
-        </div>
-        <div class="ann-actions">
-          <button class="btn-ghost" data-id="${a.id}" data-action="editAnn">Edit</button>
-          <button class="btn-ghost" data-id="${a.id}" data-action="delAnn">Delete</button>
-        </div>
-      `;
-      annList.appendChild(d);
-    });
-    annCount.textContent = state.announcements.length + ' total';
-  }
-
-  function renderAssignments(){
-    assignmentsTable.innerHTML = '';
-    state.assignments.slice().reverse().forEach(a=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="max-width:220px">${escapeHtml(a.title)}</td>
-        <td>${escapeHtml(a.subject)}</td>
-        <td>${escapeHtml(a.deadline || '')}</td>
-        <td>${a.link ? `<a href="${escapeHtml(a.link)}" target="_blank">Link</a>` : '-'}</td>
-        <td><span class="status ${a.status === 'done' ? 'done' : a.status === 'missed' ? 'missed' : 'pending'}">${a.status}</span></td>
-        <td style="text-align:right">
-          <button class="btn-ghost" data-id="${a.id}" data-action="viewAssign">View</button>
-          <button class="btn-ghost" data-id="${a.id}" data-action="editAssign">Edit</button>
-          <button class="btn-ghost" data-id="${a.id}" data-action="delAssign">Del</button>
-        </td>
-      `;
-      assignmentsTable.appendChild(tr);
-    });
-    assignCount.textContent = state.assignments.length + ' assignments';
-  }
-
-  function renderNotes(){
-    notesGrid.innerHTML = '';
-    state.notes.slice().reverse().forEach(n=>{
-      const nc = document.createElement('div');
-      nc.className = 'note-card';
-      nc.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div class="note-title">${escapeHtml(n.title)}</div>
-            <div class="small">${escapeHtml(n.subject)} • uploaded by ${escapeHtml(n.uploadedBy || '—')}</div>
-          </div>
-          <div>
-            <button class="btn-ghost" data-id="${n.id}" data-action="viewNote">View</button>
-            <button class="btn-ghost" data-id="${n.id}" data-action="editNote">Edit</button>
-            <button class="btn-ghost" data-id="${n.id}" data-action="delNote">Del</button>
-          </div>
-        </div>
-        <div class="note-footer">
-          <div>${n.link ? `<a href="${escapeHtml(n.link)}" target="_blank">Open resource</a>` : '<span class="small">No external link</span>'}</div>
-          <div class="small">${n.desc ? truncate(n.desc, 60) : ''}</div>
-        </div>
-      `;
-      notesGrid.appendChild(nc);
-    });
-  }
-
-  function renderEvents(){
-    eventsList.innerHTML = '';
-    state.events.slice().reverse().forEach(e=>{
-      const el = document.createElement('div');
-      el.className = 'ann-item';
-      el.innerHTML = `
-        <div>
-          <div style="font-weight:700">${escapeHtml(e.title)}</div>
-          <div class="meta">${escapeHtml(e.date || '')} ${e.time ? ' • ' + escapeHtml(e.time) : ''}</div>
-          <div class="small" style="margin-top:6px">${escapeHtml(e.desc || '')}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <button class="btn-ghost" data-id="${e.id}" data-action="editEvent">Edit</button>
-          <button class="btn-ghost" data-id="${e.id}" data-action="delEvent">Delete</button>
-        </div>
-      `;
-      eventsList.appendChild(el);
-    });
-    eventCount.textContent = state.events.length + ' upcoming';
-  }
-
-  function renderStudents(){
-    studentsList.innerHTML = '';
-    state.students.forEach(s=>{
-      const div = document.createElement('div');
-      div.className = 'att-row student';
-      div.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(90deg,#fff1,#fff0);display:grid;place-items:center;color:#081224;font-weight:700">${s.name.split(' ').map(x=>x[0]).slice(0,2).join('')}</div>
-          <div>
-            <div style="font-weight:700">${escapeHtml(s.name)}</div>
-            <div class="small">ID: ${s.id.slice(0,6)}</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <input type="checkbox" data-id="${s.id}" ${s.present ? "checked" : ""} aria-label="Mark present for ${escapeHtml(s.name)}" />
-        </div>
-      `;
-      studentsList.appendChild(div);
-    });
-    updateAttendanceSummary();
-  }
-
-  // ---------- mini calendar ----------
-  let miniMonthOffset = 0; // 0 => current month
-  function initMiniCalendar(){
-    document.getElementById('miniPrev').addEventListener('click', ()=>{ miniMonthOffset--; renderMiniCalendar(); });
-    document.getElementById('miniNext').addEventListener('click', ()=>{ miniMonthOffset++; renderMiniCalendar(); });
-    renderMiniCalendar();
-  }
-  function renderMiniCalendar(){
-    const today = new Date();
-    const base = new Date(today.getFullYear(), today.getMonth() + miniMonthOffset, 1);
-    const monthName = base.toLocaleString(undefined,{month:'long',year:'numeric'});
-    miniTitle.textContent = monthName;
-    miniCalendar.innerHTML = '';
-    // header
-    const weeks = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const header = document.createElement('div');
-    header.className = 'cal-head';
-    header.innerHTML = `<div style="display:flex;gap:6px">${weeks.map(w=>`<div style="width:46px;text-align:center;font-size:12px;color:var(--muted)">${w}</div>`).join('')}</div>`;
-    miniCalendar.appendChild(header);
-
-    // grid
-    const grid = document.createElement('div');
-    grid.className = 'cal-grid';
-    const startDay = new Date(base.getFullYear(), base.getMonth(), 1).getDay();
-    const daysInMonth = new Date(base.getFullYear(), base.getMonth()+1, 0).getDate();
-    // fill blanks
-    for(let i=0;i<startDay;i++){
-      const blank = document.createElement('div'); blank.className='cal-day'; blank.innerHTML=''; grid.appendChild(blank);
-    }
-    for(let d=1;d<=daysInMonth;d++){
-      const curr = new Date(base.getFullYear(), base.getMonth(), d);
-      const iso = curr.toISOString().slice(0,10);
-      const dayEl = document.createElement('div');
-      dayEl.className = 'cal-day' + (isSameDate(curr, new Date()) ? ' today' : '');
-      dayEl.innerHTML = `<div class="date">${d}</div><div class="events"></div>`;
-      // find events on this date
-      const events = state.events.filter(ev => ev.date === iso);
-      const evWrap = dayEl.querySelector('.events');
-      events.slice(0,3).forEach(ev=>{
-        const evEl = document.createElement('div');
-        evEl.className = 'cal-event';
-        evEl.textContent = ev.title;
-        evEl.title = ev.desc || '';
-        evEl.addEventListener('click', ()=> openViewEvent(ev.id));
-        evWrap.appendChild(evEl);
-      });
-      // add placeholder to add event by clicking day
-      dayEl.addEventListener('dblclick', ()=> openAddEvent(iso));
-      grid.appendChild(dayEl);
-    }
-    miniCalendar.appendChild(grid);
-  }
-
-  // ---------- upcoming mini ----------
-  function renderUpcomingMini(){
-    upcomingMini.innerHTML = '';
-    const future = state.events
-      .filter(e => e.date && new Date(e.date) >= new Date(new Date().toISOString().slice(0,10)))
-      .sort((a,b)=> new Date(a.date) - new Date(b.date))
-      .slice(0,3);
-    if(!future.length) upcomingMini.innerHTML = '<div class="small">No events coming soon</div>';
-    future.forEach(e=>{
-      const div = document.createElement('div'); div.className='ann-item';
-      div.innerHTML = `<div><div style="font-weight:700">${escapeHtml(e.title)}</div><div class="meta">${escapeHtml(e.date)}</div></div><div><button class="btn-ghost" data-id="${e.id}" data-action="openEvent">Open</button></div>`;
-      upcomingMini.appendChild(div);
-    });
-  }
-
-  // ---------- interactions & handlers ----------
-  function setupButtons(){
-    // global clicks on dynamic buttons
-    document.addEventListener('click', (ev)=>{
-      const t = ev.target;
-      // announcements
-      if(t.dataset && t.dataset.action === 'delAnn'){ deleteAnnouncement(t.dataset.id); }
-      if(t.dataset && t.dataset.action === 'editAnn'){ openEditAnnouncement(t.dataset.id); }
-
-      // assignments
-      if(t.dataset && t.dataset.action === 'viewAssign'){ openViewAssignment(t.dataset.id); }
-      if(t.dataset && t.dataset.action === 'editAssign'){ openEditAssignment(t.dataset.id); }
-      if(t.dataset && t.dataset.action === 'delAssign'){ deleteAssignment(t.dataset.id); }
-
-      // notes
-      if(t.dataset && t.dataset.action === 'viewNote'){ openViewNote(t.dataset.id); }
-      if(t.dataset && t.dataset.action === 'editNote'){ openEditNote(t.dataset.id); }
-      if(t.dataset && t.dataset.action === 'delNote'){ deleteNote(t.dataset.id); }
-
-      // events
-      if(t.dataset && t.dataset.action === 'editEvent'){ openEditEvent(t.dataset.id); }
-      if(t.dataset && t.dataset.action === 'delEvent'){ deleteEvent(t.dataset.id); }
-      if(t.dataset && t.dataset.action === 'openEvent'){ openViewEvent(t.dataset.id); }
-    });
-
-    // open forms
-    document.getElementById('openAddAnnouncement').addEventListener('click', ()=> openAddAnnouncement());
-    document.getElementById('openAddAssignment').addEventListener('click', ()=> openAddAssignment());
-    document.getElementById('openAddAssignment2').addEventListener('click', ()=> openAddAssignment());
-    document.getElementById('openAddNote').addEventListener('click', ()=> openAddNote());
-    document.getElementById('openAddEvent').addEventListener('click', ()=> openAddEvent());
-    document.getElementById('exportAttendance').addEventListener('click', exportAttendanceCSV);
-    document.getElementById('exportAssignments').addEventListener('click', exportAssignmentsCSV);
-    document.getElementById('clearAll').addEventListener('click', ()=> {
-      if(confirm('Clear all local data? This cannot be undone in this browser.')) resetState();
-    });
-
-    // student checkboxes
-    studentsList.addEventListener('change', (ev)=>{
-      if(ev.target.matches('input[type="checkbox"]')){
-        const id = ev.target.dataset.id;
-        const stu = state.students.find(s=>s.id===id);
-        if(stu) stu.present = ev.target.checked;
-        saveState(); updateAttendanceSummary();
+      // init default state
+      let state = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if(!state){
+        state = {
+          pages: {
+            home: [{ id: idGen(), text: 'Welcome to CSE_D HQ — this Notion-style workspace demo saves to your browser. Use + Block, drag to reorder, and / key to add quickly.' }],
+            announcements: [],
+            study: [],
+            notes: [],
+            placement: []
+          },
+          current: 'home',
+          meta: { createdAt: Date.now() }
+        };
+        localStorage.setItem(KEY, JSON.stringify(state));
       }
-    });
-    // attendance buttons
-    document.getElementById('markAllPresent').addEventListener('click', ()=> {
-      state.students.forEach(s=>s.present = true);
-      saveState(); renderStudents();
-    });
-    document.getElementById('saveAttendance').addEventListener('click', ()=> {
-      const dateKey = new Date().toISOString().slice(0,10);
-      state.attendanceRecords[dateKey] = state.students.map(s=>({id:s.id, present:s.present}));
-      saveState();
-      smallToast('Attendance saved for ' + dateKey);
-      sparkleConfetti();
-    });
-    document.getElementById('clearAttendance').addEventListener('click', ()=> {
-      state.students.forEach(s=>s.present=false); saveState(); renderStudents();
-    });
-    // close modal on overlay click
-    modal.addEventListener('click', (e)=> {
-      if(e.target === modal) closeModal();
-    });
 
-    // side nav quick focus
-    document.querySelectorAll('.sidebar .btn').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        const sec = b.dataset.section;
-        // simple scroll to element by section name
-        if(sec === 'announcements') window.scrollTo({top:0,behavior:'smooth'});
-        if(sec === 'assignments') document.querySelector('h3:contains("Assignments")')?.scrollIntoView({behavior:'smooth'});
-        // otherwise just focus top
-      });
-    });
-  }
+      // load theme
+      const savedTheme = localStorage.getItem('cse_theme');
+      if(savedTheme === 'dark'){ document.body.classList.add('dark'); themeToggle.textContent = 'Light'; } else { themeToggle.textContent = 'Dark'; }
 
-  // ---------- Add / Edit modals ----------
-  function openAddAnnouncement(text){
-    modalShow(`
-      <h2 style="margin-top:0">Add Announcement</h2>
-      <label>Message</label>
-      <textarea id="anText" rows="3" placeholder="Write announcement...">${text ? escapeHtml(text) : ''}</textarea>
-      <div class="row" style="margin-top:8px">
-        <div class="col">
-          <label>Date (optional)</label>
-          <input type="date" id="anDate" />
-        </div>
-      </div>
-      <div class="actions">
-        <button class="btn-ghost" id="cancelModal">Cancel</button>
-        <button class="btn-primary" id="saveAnn">Save</button>
-      </div>
-    `);
-    document.getElementById('cancelModal').addEventListener('click', closeModal);
-    document.getElementById('saveAnn').addEventListener('click', ()=>{
-      const text = document.getElementById('anText').value.trim();
-      const date = document.getElementById('anDate').value;
-      if(!text) { smallToast('Please write an announcement.'); return; }
-      state.announcements.push({id:idGen(), text, date: date || todayISO()});
-      saveState(); renderAnnouncements(); closeModal(); smallToast('Announcement added'); sparkleConfetti();
-    });
-  }
-  function openEditAnnouncement(id){
-    const a = state.announcements.find(x=>x.id===id);
-    if(!a) return;
-    modalShow(`
-      <h2 style="margin-top:0">Edit Announcement</h2>
-      <label>Message</label>
-      <textarea id="anText" rows="3">${escapeHtml(a.text)}</textarea>
-      <label style="margin-top:6px">Date</label>
-      <input type="date" id="anDate" value="${escapeHtml(a.date||'')}"/>
-      <div class="actions">
-        <button class="btn-ghost" id="cancelModal">Cancel</button>
-        <button class="btn-primary" id="saveAnn">Save</button>
-      </div>
-    `);
-    document.getElementById('cancelModal').addEventListener('click', closeModal);
-    document.getElementById('saveAnn').addEventListener('click', ()=>{
-      a.text = document.getElementById('anText').value.trim();
-      a.date = document.getElementById('anDate').value;
-      saveState(); renderAnnouncements(); closeModal(); smallToast('Announcement updated');
-    });
-  }
-  function deleteAnnouncement(id){
-    if(!confirm('Delete this announcement?')) return;
-    state.announcements = state.announcements.filter(a=>a.id!==id);
-    saveState(); renderAnnouncements();
-  }
+      // utility: id
+      function idGen(){ return 'b_' + Math.random().toString(36).slice(2,9); }
 
-  // assignments
-  function openAddAssignment(data = {}) {
-    modalShow(`
-      <h2 style="margin-top:0">${data.id ? 'Edit' : 'Add'} Assignment</h2>
-      <label>Title</label><input id="asTitle" type="text" value="${escapeHtml(data.title||'')}" />
-      <div class="row">
-        <div class="col">
-          <label>Subject</label><input id="asSubject" type="text" value="${escapeHtml(data.subject||'')}" />
-        </div>
-        <div class="col">
-          <label>Deadline</label><input id="asDeadline" type="date" value="${escapeHtml(data.deadline||'')}" />
-        </div>
-      </div>
-      <label>Submission Link (optional)</label><input id="asLink" type="text" value="${escapeHtml(data.link||'')}" />
-      <div style="margin-top:8px">
-        <label>Status</label>
-        <select id="asStatus">
-          <option value="pending">pending</option>
-          <option value="done">done</option>
-          <option value="missed">missed</option>
-        </select>
-      </div>
-      <div class="actions">
-        <button class="btn-ghost" id="cancelModal">Cancel</button>
-        <button class="btn-primary" id="saveAssign">${data.id ? 'Save' : 'Add'}</button>
-      </div>
-    `);
-    if(data.id) document.getElementById('asStatus').value = data.status || 'pending';
-    document.getElementById('cancelModal').addEventListener('click', closeModal);
-    document.getElementById('saveAssign').addEventListener('click', ()=>{
-      const title = document.getElementById('asTitle').value.trim();
-      const subject = document.getElementById('asSubject').value.trim();
-      const deadline = document.getElementById('asDeadline').value;
-      const link = document.getElementById('asLink').value.trim();
-      const status = document.getElementById('asStatus').value;
-      if(!title || !subject) { smallToast('Title and subject required'); return; }
-      if(data.id){
-        const it = state.assignments.find(x=>x.id===data.id);
-        Object.assign(it, {title, subject, deadline, link, status});
-        smallToast('Assignment updated'); sparkleConfetti();
-      } else {
-        state.assignments.push({id:idGen(), title, subject, deadline, link, status});
-        smallToast('Assignment added'); sparkleConfetti();
+      // render pages list
+      function renderPages(){
+        pagesList.innerHTML = '';
+        for(const pid of Object.keys(state.pages)){
+          const btn = document.createElement('button');
+          btn.className = 'page-btn' + (state.current === pid ? ' active' : '');
+          btn.dataset.id = pid;
+          // label (human-friendly)
+          const label = pid === 'home' ? 'Home' : pid === 'announcements' ? 'Announcements' : pid === 'study' ? 'Study Planner' : pid === 'notes' ? 'Notes' : pid === 'placement' ? 'Placement' : pid.replace(/_/g,' ');
+          btn.innerHTML = `<span class="tiny-ico">${iconFor(pid)}</span><span style="flex:1;margin-left:6px">${label}</span>`;
+          btn.addEventListener('click', ()=>{ document.querySelectorAll('.page-btn').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); state.current = pid; saveState(); renderCurrent(); });
+          pagesList.appendChild(btn);
+        }
       }
-      saveState(); renderAssignments(); closeModal();
-    });
-  }
-  function openEditAssignment(id){ const a = state.assignments.find(x=>x.id===id); if(a) openAddAssignment(a); }
-  function openViewAssignment(id){
-    const a = state.assignments.find(x=>x.id===id);
-    if(!a) return;
-    modalShow(`
-      <h2 style="margin-top:0">${escapeHtml(a.title)}</h2>
-      <div class="small">Subject: ${escapeHtml(a.subject)} • Deadline: ${escapeHtml(a.deadline || '—')}</div>
-      <div style="margin-top:10px">${a.link ? `<a href="${escapeHtml(a.link)}" target="_blank">Open submission link</a>` : '<span class="small">No submission link</span>'}</div>
-      <div style="margin-top:10px">${a.status ? '<div class="status '+a.status+'">'+escapeHtml(a.status)+'</div>' : ''}</div>
-      <div class="actions"><button class="btn-ghost" id="closeNow">Close</button></div>
-    `);
-    document.getElementById('closeNow').addEventListener('click', closeModal);
-  }
-  function deleteAssignment(id){
-    if(!confirm('Delete assignment?')) return;
-    state.assignments = state.assignments.filter(a=>a.id!==id);
-    saveState(); renderAssignments();
-  }
 
-  // notes
-  function openAddNote(data = {}){
-    modalShow(`
-      <h2 style="margin-top:0">${data.id ? 'Edit' : 'Add'} Note</h2>
-      <label>Title</label><input id="noteTitle" type="text" value="${escapeHtml(data.title||'')}" />
-      <label>Subject</label><input id="noteSubject" type="text" value="${escapeHtml(data.subject||'')}" />
-      <label>Resource link (optional)</label><input id="noteLink" type="text" value="${escapeHtml(data.link||'')}" />
-      <label>Description</label><textarea id="noteDesc" rows="4">${escapeHtml(data.desc||'')}</textarea>
-      <label>Uploaded by</label><input id="noteBy" type="text" value="${escapeHtml(data.uploadedBy||'')}" />
-      <div class="actions"><button class="btn-ghost" id="cancelModal">Cancel</button><button class="btn-primary" id="saveNote">${data.id ? 'Save' : 'Add'}</button></div>
-    `);
-    document.getElementById('cancelModal').addEventListener('click', closeModal);
-    document.getElementById('saveNote').addEventListener('click', ()=>{
-      const title = document.getElementById('noteTitle').value.trim();
-      if(!title){ smallToast('Title required'); return; }
-      const obj = {
-        id: data.id || idGen(),
-        title,
-        subject: document.getElementById('noteSubject').value.trim(),
-        link: document.getElementById('noteLink').value.trim(),
-        desc: document.getElementById('noteDesc').value.trim(),
-        uploadedBy: document.getElementById('noteBy').value.trim()
-      };
-      if(data.id){
-        const it = state.notes.find(n=>n.id===data.id); Object.assign(it, obj);
-        smallToast('Note updated');
-      } else {
-        state.notes.push(obj); smallToast('Note added'); sparkleConfetti();
+      // small icon helper
+      function iconFor(id){
+        switch(id){
+          case 'home': return '🏠';
+          case 'announcements': return '📢';
+          case 'study': return '⏱️';
+          case 'notes': return '📝';
+          case 'placement': return '🎯';
+          default: return '📄';
+        }
       }
-      saveState(); renderNotes(); closeModal();
-    });
-  }
-  function openViewNote(id){
-    const n = state.notes.find(x=>x.id===id); if(!n) return;
-    modalShow(`
-      <h2 style="margin-top:0">${escapeHtml(n.title)}</h2>
-      <div class="small">Subject: ${escapeHtml(n.subject)} • Uploaded by ${escapeHtml(n.uploadedBy)}</div>
-      <div style="margin-top:8px">${n.desc ? escapeHtml(n.desc) : ''}</div>
-      <div style="margin-top:8px">${n.link ? `<a href="${escapeHtml(n.link)}" target="_blank">Open resource</a>` : ''}</div>
-      <div class="actions"><button class="btn-ghost" id="closeNow">Close</button></div>
-    `);
-    document.getElementById('closeNow').addEventListener('click', closeModal);
-  }
-  function openEditNote(id){ const n = state.notes.find(x=>x.id===id); if(n) openAddNote(n); }
-  function deleteNote(id){ if(!confirm('Delete note?')) return; state.notes = state.notes.filter(n=>n.id!==id); saveState(); renderNotes(); }
 
-  // events
-  function openAddEvent(dateVal){
-    modalShow(`
-      <h2 style="margin-top:0">Add Event</h2>
-      <label>Title</label><input id="evTitle" type="text" />
-      <div class="row">
-        <div class="col"><label>Date</label><input id="evDate" type="date" value="${dateVal || ''}" /></div>
-        <div class="col"><label>Time</label><input id="evTime" type="text" placeholder="10:30 AM" /></div>
-      </div>
-      <label>Description</label><textarea id="evDesc" rows="4"></textarea>
-      <div class="actions"><button class="btn-ghost" id="cancelModal">Cancel</button><button class="btn-primary" id="saveEvent">Add Event</button></div>
-    `);
-    document.getElementById('cancelModal').addEventListener('click', closeModal);
-    document.getElementById('saveEvent').addEventListener('click', ()=>{
-      const title = document.getElementById('evTitle').value.trim();
-      const date = document.getElementById('evDate').value;
-      if(!title || !date){ smallToast('Title & date required'); return; }
-      state.events.push({id:idGen(), title, date, time: document.getElementById('evTime').value.trim(), desc: document.getElementById('evDesc').value.trim()});
-      saveState(); renderEvents(); renderMiniCalendar(); renderUpcomingMini(); closeModal(); smallToast('Event added'); sparkleConfetti();
-    });
-  }
-  function openViewEvent(id){
-    const e = state.events.find(x=>x.id===id);
-    if(!e) return;
-    modalShow(`
-      <h2 style="margin-top:0">${escapeHtml(e.title)}</h2>
-      <div class="small">${escapeHtml(e.date || '')} ${e.time ? ' • ' + escapeHtml(e.time) : ''}</div>
-      <div style="margin-top:8px">${escapeHtml(e.desc || '')}</div>
-      <div class="actions"><button class="btn-ghost" id="closeNow">Close</button></div>
-    `);
-    document.getElementById('closeNow').addEventListener('click', closeModal);
-  }
-  function openEditEvent(id){ const e = state.events.find(x=>x.id===id); if(!e) {
-    console.warn('event not found',id); return;
-  }
-    modalShow(`
-      <h2 style="margin-top:0">Edit Event</h2>
-      <label>Title</label><input id="evTitle" type="text" value="${escapeHtml(e.title)}" />
-      <div class="row">
-        <div class="col"><label>Date</label><input id="evDate" type="date" value="${escapeHtml(e.date||'')}" /></div>
-        <div class="col"><label>Time</label><input id="evTime" type="text" value="${escapeHtml(e.time||'')}" /></div>
-      </div>
-      <label>Description</label><textarea id="evDesc" rows="4">${escapeHtml(e.desc||'')}</textarea>
-      <div class="actions"><button class="btn-ghost" id="cancelModal">Cancel</button><button class="btn-primary" id="saveEvent">Save</button></div>
-    `);
-    document.getElementById('cancelModal').addEventListener('click', closeModal);
-    document.getElementById('saveEvent').addEventListener('click', ()=>{
-      e.title = document.getElementById('evTitle').value.trim();
-      e.date = document.getElementById('evDate').value;
-      e.time = document.getElementById('evTime').value.trim();
-      e.desc = document.getElementById('evDesc').value.trim();
-      saveState(); renderEvents(); renderMiniCalendar(); renderUpcomingMini(); closeModal(); smallToast('Event updated');
-    });
-  }
-  function deleteEvent(id){ if(!confirm('Delete this event?')) return; state.events = state.events.filter(e=>e.id!==id); saveState(); renderEvents(); renderMiniCalendar(); renderUpcomingMini(); }
+      // render current page blocks
+      function renderCurrent(){
+        pageContent.innerHTML = '';
+        const cur = state.current || 'home';
+        pageTitle.textContent = humanLabel(cur);
+        const blocks = state.pages[cur] || [];
+        blocks.forEach(b => {
+          pageContent.appendChild(makeBlockElement(b));
+        });
+        // if empty, show a subtle placeholder block
+        if(blocks.length === 0){
+          const p = document.createElement('div');
+          p.className = 'muted';
+          p.style.padding = '18px';
+          p.textContent = 'This page is empty — add blocks with + Block or press "/" to add quickly.';
+          pageContent.appendChild(p);
+        }
+      }
 
-  // ---------- helpers ----------
-  function modalShow(html){
-    modalContent.innerHTML = html;
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden','false');
-    // focus first input
-    setTimeout(()=> {
-      const fi = modalContent.querySelector('input,textarea,button,select');
-      if(fi) fi.focus();
-    },80);
-  }
-  function closeModal(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); modalContent.innerHTML=''; }
+      function humanLabel(id){
+        if(id === 'home') return 'Home';
+        if(id === 'announcements') return 'Announcements';
+        if(id === 'study') return 'Study Planner';
+        if(id === 'notes') return 'Notes';
+        if(id === 'placement') return 'Placement';
+        return id.replace(/_/g,' ');
+      }
 
-  function idGen(){ return Math.random().toString(36).slice(2,10); }
-  function todayISO(){ return new Date().toISOString().slice(0,10); }
-  function isSameDate(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
-  function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
-  function truncate(s,n){ if(!s) return ''; return s.length>n ? s.slice(0,n-1)+'…' : s; }
+      // create block element from data
+      function makeBlockElement(data){
+        const tpl = document.getElementById('blockTemplate');
+        const node = tpl.content.firstElementChild.cloneNode(true);
+        node.classList.add('enter');
+        node.dataset.id = data.id;
+        const content = node.querySelector('.content');
+        content.textContent = data.text;
+        // events
+        node.querySelector('.action.del').addEventListener('click', ()=>{ deleteBlock(data.id); });
+        node.querySelector('.action.save').addEventListener('click', ()=>{ saveBlock(node); });
 
-  // small toast helper
-  function smallToast(msg){
-    const t = document.createElement('div');
-    t.style.position='fixed'; t.style.right='18px'; t.style.bottom='18px';
-    t.style.background='linear-gradient(90deg,#0ea5e9,#7c5cff)'; t.style.color='#021024'; t.style.padding='12px 14px';
-    t.style.borderRadius='10px'; t.style.fontWeight='700'; t.style.boxShadow='0 8px 24px rgba(0,0,0,0.6)';
-    t.style.zIndex=9999; t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(()=> t.style.opacity='0.12', 2200);
-    setTimeout(()=> t.remove(), 2600);
-  }
+        // focus on double click behavior
+        node.addEventListener('dblclick', ()=>{ content.focus(); document.execCommand('selectAll', false, null); });
 
-  // confetti: small but delightful
-  function sparkleConfetti(){
-    const canvas = confettiCanvas;
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width = innerWidth;
-    const h = canvas.height = innerHeight;
-    const pieces = [];
-    for(let i=0;i<80;i++){
-      pieces.push({
-        x: Math.random()*w,
-        y: Math.random()*-h,
-        vx: (Math.random()-0.5)*2,
-        vy: Math.random()*6 + 2,
-        size: Math.random()*6 + 4,
-        color: `hsl(${Math.random()*360} 80% 65%)`,
-        rot: Math.random()*360
+        // drag handling
+        node.addEventListener('dragstart', (e) => {
+          node.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', data.id);
+        });
+        node.addEventListener('dragend', () => {
+          node.classList.remove('dragging');
+        });
+
+        return node;
+      }
+
+      // save single block (from DOM node)
+      function saveBlock(node){
+        const id = node.dataset.id;
+        const txt = node.querySelector('.content').textContent.trim();
+        const list = state.pages[state.current];
+        const idx = list.findIndex(x => x.id === id);
+        if(idx > -1){
+          list[idx].text = txt;
+          saveState();
+          renderCurrent();
+        }
+      }
+
+      // delete
+      function deleteBlock(id){
+        state.pages[state.current] = state.pages[state.current].filter(b => b.id !== id);
+        saveState();
+        renderCurrent();
+      }
+
+      // add block
+      function addBlock(text){
+        const b = { id: idGen(), text: text || 'New block — edit me' };
+        state.pages[state.current].push(b);
+        saveState();
+        renderCurrent();
+        // focus new block quickly
+        setTimeout(()=>{ const el = document.querySelector(`[data-id="${b.id}"] .content`); if(el) el.focus(); },80);
+      }
+
+      // drag-drop reordering on pageContent
+      pageContent.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const after = getDragAfterElement(pageContent, e.clientY);
+        const dragging = document.querySelector('.block.dragging');
+        if(!dragging) return;
+        if(after == null) pageContent.appendChild(dragging);
+        else pageContent.insertBefore(dragging, after);
       });
-    }
-    let t = 0;
-    function frame(){
-      ctx.clearRect(0,0,w,h);
-      pieces.forEach(p=>{
-        p.x += p.vx; p.y += p.vy;
-        p.vy += 0.08;
-        ctx.save();
-        ctx.translate(p.x,p.y);
-        ctx.rotate(p.rot*Math.PI/180);
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
-        ctx.restore();
+
+      pageContent.addEventListener('drop', () => {
+        // gather order and update state
+        const ids = Array.from(pageContent.querySelectorAll('.block')).map(n => n.dataset.id);
+        const newList = ids.map(id => state.pages[state.current].find(b => b.id === id) || { id, text: '' });
+        state.pages[state.current] = newList;
+        saveState();
+        renderCurrent();
       });
-      t++;
-      if(t < 120) requestAnimationFrame(frame);
-      else ctx.clearRect(0,0,w,h);
-    }
-    requestAnimationFrame(frame);
-  }
 
-  // export CSV
-  function exportAttendanceCSV(){
-    const date = todayISO();
-    const rows = [['Name','ID','Present']];
-    state.students.forEach(s=> rows.push([s.name, s.id, s.present ? 'Present' : 'Absent']));
-    downloadCSV(rows, `attendance_${date}.csv`);
-  }
-  function exportAssignmentsCSV(){
-    const rows = [['Title','Subject','Deadline','Link','Status']];
-    state.assignments.forEach(a=> rows.push([a.title, a.subject, a.deadline||'', a.link||'', a.status]));
-    downloadCSV(rows, `assignments_${todayISO()}.csv`);
-  }
-  function downloadCSV(rows, name){
-    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob([csv],{type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url);
-    smallToast('CSV downloaded: ' + name);
-  }
+      function getDragAfterElement(container, y){
+        const draggableElements = [...container.querySelectorAll('.block:not(.dragging)')];
+        let closest = { offset: Number.NEGATIVE_INFINITY, element: null };
+        for(const child of draggableElements){
+          const box = child.getBoundingClientRect();
+          const offset = y - box.top - box.height / 2;
+          if(offset < 0 && offset > closest.offset){
+            closest = { offset, element: child };
+          }
+        }
+        return closest.element;
+      }
 
-  // sidebar quick actions binding
-  function buildSidebarActions(){
-    // hook open add forms quickly
-    // already handled above
-  }
+      // save entire state
+      function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
 
-  // update attendance summary
-  function updateAttendanceSummary(){
-    const present = state.students.filter(s=>s.present).length;
-    attendanceSummary.textContent = `${present}/${state.students.length} present`;
-    document.getElementById('attendanceSummary').textContent = `${present}/${state.students.length} present`;
-  }
+      // new page creation
+      newPageBtn.addEventListener('click', ()=>{
+        let name = prompt('New page name (e.g. Class Plan, Lab Reports)').trim();
+        if(!name) return;
+        const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+        if(state.pages[id]){
+          alert('A page with that name already exists. Choose another name.');
+          return;
+        }
+        state.pages[id] = [];
+        state.current = id;
+        saveState();
+        renderPages();
+        // attach click handler to new button
+        const btns = pagesList.querySelectorAll('.page-btn');
+        btns.forEach(b => { if(b.dataset.id === id) { b.click(); } })
+      });
 
-  function renderSummary(){
-    renderAnnouncements(); renderAssignments(); renderNotes(); renderEvents(); renderStudents(); renderMiniCalendar(); renderUpcomingMini();
-  }
+      // share/export (simple)
+      shareBtn.addEventListener('click', ()=>{
+        const cur = state.current;
+        const blocks = state.pages[cur] || [];
+        const text = blocks.map(b => b.text).join('\\n\\n');
+        // show copy prompt
+        if(navigator.clipboard){
+          navigator.clipboard.writeText(text).then(()=> alert('Page content copied to clipboard (demo).'));
+        } else {
+          prompt('Copy page content (demo):', text);
+        }
+      });
 
-  // util: make sure we save on unload
-  window.addEventListener('beforeunload', ()=> saveState());
+      // sidebar toggle
+      toggleSidebar.addEventListener('click', ()=> leftbar.classList.toggle('open'));
 
-  // small helper to find element by text (used earlier but fallback)
-  (function polyfills(){
-    if(!Element.prototype.matches) Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-    if(!Document.prototype.querySelectorAll) Document.prototype.querySelectorAll = function(){ return []; };
-  })();
+      // theme toggle
+      themeToggle.addEventListener('click', ()=>{
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        localStorage.setItem('cse_theme', isDark ? 'dark' : 'light');
+        themeToggle.textContent = isDark ? 'Light' : 'Dark';
+      });
 
-  // tiny helper: add sample UI keyboard support
-  document.addEventListener('keydown', (e)=>{
-    if(e.key === 'n' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); openAddNote(); }
-    if(e.key === 'a' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); openAddAnnouncement(); }
-  });
+      // keyboard shortcut: "/" to add block when not typing in an input
+      document.addEventListener('keydown', (e)=>{
+        const tag = document.activeElement.tagName;
+        if(e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA' && document.querySelector(':focus') !== pageContent){
+          e.preventDefault();
+          addBlock('');
+        }
 
-  // utility to open add event with given date
-  window.openAddEvent = function(date){ openAddEvent(date); };
+        // ctrl+s to save current edited block
+        if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
+          e.preventDefault();
+          const focused = document.activeElement.closest && document.activeElement.closest('.block');
+          if(focused) saveBlock(focused);
+          saveState();
+          alert('Saved (local)');
+        }
+      });
 
-  // v tiny helper to expose modal functions for debugging
-  window._dashboard = { state, saveState, openAddAnnouncement };
+      // click handler to save block on blur automatically
+      pageContent.addEventListener('focusout', (e)=>{
+        const blk = e.target.closest && e.target.closest('.block');
+        if(blk && blk.dataset.id){
+          saveBlock(blk);
+        }
+      }, true);
 
-})();
-</script>
+      // render pages and current page initially
+      renderPages();
+      renderCurrent();
+
+      // helper: expose a function to create a few sample blocks for presentation
+      function seedSample(){
+        const cur = state.current;
+        if(!cur) return;
+        if(state.pages[cur].length === 0){
+          state.pages[cur].push({ id: idGen(), text: '### Class Goals\\n- Revise DS & Algo\\n- Prepare for Mock Interviews' });
+          state.pages[cur].push({ id: idGen(), text: '### Announcements\\n- Quiz on Friday (Ch 1-4)' });
+          state.pages[cur].push({ id: idGen(), text: '### To-do\\n[ ] Finish lab OBS\\n[ ] Book mock interview slot' });
+          saveState();
+          renderCurrent();
+        }
+      }
+      // seed on first load for home
+      if(state.pages.home && state.pages.home.length <= 1) setTimeout(seedSample, 300);
+
+      // small helper to focus scrolling new blocks into view when added
+      // (not necessary but nice UX)
+      const observer = new MutationObserver(()=>{ const b = document.querySelector('.block.enter'); if(b){ b.classList.remove('enter'); } });
+      observer.observe(pageContent, {childList:true, subtree:true});
+
+    })();
+  </script>
 </body>
 </html>
