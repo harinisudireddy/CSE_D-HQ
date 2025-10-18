@@ -1,81 +1,278 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CSE_D HQ — Student Portal (Demo)</title>
-<link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeltaDeck - CSE D Section</title>
+<style>
+    /* ----------- Reset & Base ------------- */
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+    body { background: linear-gradient(135deg,#6a11cb,#2575fc); min-height:100vh; color:#fff; }
+    a { text-decoration:none; color: inherit; }
+    h1,h2,h3,h4 { margin-bottom:0.5rem; }
+
+    /* ----------- Header ------------- */
+    header {
+        background: rgba(0,0,0,0.2);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        text-align:center;
+        position: sticky;
+        top:0;
+        z-index:100;
+        box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    }
+    header h1 {
+        font-size:2rem;
+        color: #fff;
+        letter-spacing: 1px;
+        animation: slideIn 1s ease forwards;
+    }
+
+    @keyframes slideIn {
+        from { opacity:0; transform: translateY(-20px);}
+        to { opacity:1; transform: translateY(0);}
+    }
+
+    /* ----------- Container ------------- */
+    .container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+        gap: 2rem;
+    }
+
+    /* ----------- Cards ------------- */
+    .card {
+        background: rgba(255,255,255,0.05);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow:0 15px 25px rgba(0,0,0,0.5);
+    }
+    .card h2 { margin-bottom:1rem; color:#ffd700; }
+    .card ul { list-style: none; padding-left:0; }
+    .card li { margin-bottom:0.5rem; }
+    .card button {
+        margin-top:1rem;
+        padding:0.5rem 1rem;
+        border:none;
+        border-radius: 0.5rem;
+        background: #ffd700;
+        color:#000;
+        cursor:pointer;
+        transition: 0.3s;
+    }
+    .card button:hover {
+        background: #ffb700;
+    }
+
+    /* ----------- Calendar ------------- */
+    .calendar {
+        background: rgba(255,255,255,0.05);
+        padding:1rem;
+        border-radius:1rem;
+        backdrop-filter: blur(10px);
+        overflow:auto;
+    }
+    table { width:100%; border-collapse: collapse; margin-top:1rem; }
+    th,td { padding:0.5rem; text-align:center; }
+    th { color:#ffd700; }
+    td { cursor:pointer; transition: 0.3s; }
+    td:hover { background: rgba(255,255,255,0.2); border-radius:0.3rem; }
+
+    /* ----------- Animations for Submit --------- */
+    .popup {
+        position: fixed;
+        top:50%;
+        left:50%;
+        transform: translate(-50%, -50%) scale(0);
+        background: rgba(0,0,0,0.8);
+        padding:2rem;
+        border-radius:1rem;
+        text-align:center;
+        transition: transform 0.3s ease;
+        color:#ffd700;
+        z-index:200;
+    }
+    .popup.show { transform: translate(-50%, -50%) scale(1); }
+
+    /* ----------- Footer ------------- */
+    footer {
+        text-align:center;
+        margin:3rem 0 1rem 0;
+        font-size:0.9rem;
+        color:#eee;
+    }
+</style>
 </head>
-<body class="light">
-<aside class="sidebar" id="sidebar">
-<div class="brand">
-<div class="logo">CD</div>
-<div>
-<h1>CSE_D HQ</h1>
-<p class="muted">Class Hub • Study • Placements</p>
-</div>
-</div>
+<body>
 
-
-<div class="avatars">
-<div class="avatar">
-<svg viewBox="0 0 36 36" class="avatar-bg"><rect width="36" height="36" rx="6"/></svg>
-<div class="initials">SH</div>
-<div class="meta"><strong>Sudireddy</strong><span class="muted">CR</span></div>
-</div>
-<div class="avatar small">
-<div class="initials">AR</div>
-<div class="meta"><strong>Aarya</strong></div>
-</div>
-</div>
-
-
-<nav>
-<a class="active" href="#">Dashboard <span class="ico">🏠</span></a>
-<a href="#announcements">Announcements <span class="ico">📢</span></a>
-<a href="#assignments">Assignments <span class="ico">🗂️</span></a>
-<a href="#study">Study Planner <span class="ico">⏱️</span></a>
-<a href="#notes">Notes <span class="ico">📝</span></a>
-<a href="#placement">Placement <span class="ico">🎯</span></a>
-<a href="#events">Events <span class="ico">📅</span></a>
-<a href="#profile">Profile <span class="ico">👤</span></a>
-</nav>
-<div class="sidebar-footer">
-<button id="themeToggle" class="btn ghost">Dark</button>
-<small class="muted">CSE_D • Batch 2025</small>
-</div>
-</aside>
-
-
-<main class="main">
-<header class="topbar">
-<button id="hamburger" class="hamburger" aria-label="Toggle nav">☰</button>
-<div class="search">
-<input placeholder="Search announcements, notes, assignments..." />
-<button class="icon-btn" aria-hidden>🔎</button>
-</div>
-<div class="top-actions">
-<div class="greeting">Hello, <strong>Student</strong></div>
-<button class="btn primary" id="quickTimer">Start 25m</button>
-</div>
+<header>
+    <h1>🌀 DeltaDeck - CSE D Section</h1>
 </header>
 
+<div class="container">
+    <!-- Announcements -->
+    <div class="card" id="announcements">
+        <h2>🗓️ Announcements & Deadlines</h2>
+        <ul id="announcement-list">
+            <li>No announcements yet!</li>
+        </ul>
+        <button onclick="addAnnouncement()">Add Announcement</button>
+    </div>
 
-<section class="content">
-<div class="grid">
-<div class="card welcome">
-<div class="welcome-inner">
-<div>
-<h2>Welcome to <span class="accent">CSE_D HQ</span></h2>
-<p class="muted">A focused space for your class — announcements, study tools, placement prep and more.</p>
+    <!-- Assignments -->
+    <div class="card" id="assignments">
+        <h2>🧾 Assignments & Submissions</h2>
+        <ul id="assignment-list">
+            <li>No assignments yet!</li>
+        </ul>
+        <button onclick="addAssignment()">Add Assignment</button>
+    </div>
+
+    <!-- Notes -->
+    <div class="card" id="notes">
+        <h2>📚 Notes & Study Material</h2>
+        <ul id="notes-list">
+            <li>No notes yet!</li>
+        </ul>
+        <button onclick="addNote()">Add Note</button>
+    </div>
+
+    <!-- Events -->
+    <div class="card" id="events">
+        <h2>🧠 Upcoming Events</h2>
+        <ul id="events-list">
+            <li>No events yet!</li>
+        </ul>
+        <button onclick="addEvent()">Add Event</button>
+    </div>
+
+    <!-- Attendance -->
+    <div class="card" id="attendance">
+        <h2>📋 Attendance / Task Tracker</h2>
+        <ul id="attendance-list">
+            <li>No records yet!</li>
+        </ul>
+        <button onclick="addAttendance()">Add Record</button>
+    </div>
+
+    <!-- Calendar -->
+    <div class="card calendar" id="calendar">
+        <h2>📅 Calendar</h2>
+        <table id="calendar-table">
+            <thead>
+                <tr>
+                    <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th>
+                    <th>Thu</th><th>Fri</th><th>Sat</th>
+                </tr>
+            </thead>
+            <tbody id="calendar-body">
+                <!-- Calendar generated by JS -->
+            </tbody>
+        </table>
+    </div>
 </div>
-<div class="hero-illustration" aria-hidden>
-<!-- simple svg illustration -->
-<svg viewBox="0 0 200 120" class="illu"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#06b6d4"/><stop offset="1" stop-color="#34d399"/></linearGradient></defs>
-<rect x="6" y="26" width="120" height="72" rx="10" fill="url(#g)" opacity="0.12" />
-<circle cx="160" cy="40" r="20" fill="#06b6d4" opacity="0.12" />
-</svg>
-</div>
-</div>
-<div class="quick-links">
+
+<div class="popup" id="popup">Added Successfully! 🎉</div>
+
+<footer>
+    &copy; 2025 DeltaDeck - CSE D Section
+</footer>
+
+<script>
+    /* ---------------- Calendar Generator ---------------- */
+    const calendarBody = document.getElementById('calendar-body');
+    const today = new Date();
+    let month = today.getMonth();
+    let year = today.getFullYear();
+
+    function generateCalendar(month, year){
+        calendarBody.innerHTML = '';
+        let firstDay = new Date(year, month, 1).getDay();
+        let daysInMonth = new Date(year, month+1,0).getDate();
+        let date = 1;
+        for(let i=0;i<6;i++){
+            let row = document.createElement('tr');
+            for(let j=0;j<7;j++){
+                let cell = document.createElement('td');
+                if(i===0 && j<firstDay){
+                    cell.innerHTML = '';
+                } else if(date > daysInMonth){
+                    cell.innerHTML = '';
+                } else {
+                    cell.innerHTML = date;
+                    date++;
+                }
+                row.appendChild(cell);
+            }
+            calendarBody.appendChild(row);
+        }
+    }
+    generateCalendar(month, year);
+
+    /* ---------------- Add Items with Popup Animation ---------------- */
+    const popup = document.getElementById('popup');
+
+    function showPopup(){
+        popup.classList.add('show');
+        setTimeout(()=> popup.classList.remove('show'), 1000);
+    }
+
+    function addAnnouncement(){
+        let text = prompt("Enter announcement:");
+        if(text){
+            let li = document.createElement('li');
+            li.textContent = text;
+            document.getElementById('announcement-list').appendChild(li);
+            showPopup();
+        }
+    }
+    function addAssignment(){
+        let text = prompt("Enter assignment:");
+        if(text){
+            let li = document.createElement('li');
+            li.textContent = text;
+            document.getElementById('assignment-list').appendChild(li);
+            showPopup();
+        }
+    }
+    function addNote(){
+        let text = prompt("Enter note:");
+        if(text){
+            let li = document.createElement('li');
+            li.textContent = text;
+            document.getElementById('notes-list').appendChild(li);
+            showPopup();
+        }
+    }
+    function addEvent(){
+        let text = prompt("Enter event:");
+        if(text){
+            let li = document.createElement('li');
+            li.textContent = text;
+            document.getElementById('events-list').appendChild(li);
+            showPopup();
+        }
+    }
+    function addAttendance(){
+        let text = prompt("Enter attendance/task record:");
+        if(text){
+            let li = document.createElement('li');
+            li.textContent = text;
+            document.getElementById('attendance-list').appendChild(li);
+            showPopup();
+        }
+    }
+</script>
+
+</body>
 </html>
+
